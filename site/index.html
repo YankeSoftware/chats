@@ -220,8 +220,22 @@
             document.getElementById(loadingId).remove();
             
             // Add response message
-            const responseText = data.response || data.text || data.message || data.content || 
-                                "I'm having trouble formatting my response right now.";
+            console.log('Response data:', data);
+            let responseText = "I'm having trouble formatting my response right now.";
+            
+            // Handle different response formats
+            if (data && typeof data === 'object') {
+              if (data.response) responseText = data.response;
+              else if (data.text) responseText = data.text;
+              else if (data.message) responseText = data.message;
+              else if (data.content) responseText = data.content;
+              else if (data.answer) responseText = data.answer;
+              else if (data.result && data.result.text) responseText = data.result.text;
+              else if (data.data && data.data.text) responseText = data.data.text;
+              else if (data.output) responseText = data.output;
+            } else if (typeof data === 'string') {
+              responseText = data;
+            }
             
             messagesDiv.innerHTML += `
               <div style="background: #f0f0f0; padding: 10px; border-radius: 10px; 
