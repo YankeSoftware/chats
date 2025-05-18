@@ -41,10 +41,67 @@
         text-align: center;
         max-width: 90vw;
       }
+      .chat-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #7c3aed;
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        transition: all 0.2s ease-in-out;
+      }
+      .chat-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      }
+      .chat-icon {
+        width: 24px;
+        height: 24px;
+        fill: white;
+      }
+      .chat-frame {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 380px;
+        height: 560px;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        display: none;
+        z-index: 1001;
+      }
       @media (max-width: 600px) {
         h1 { font-size: 1.5rem; }
         p { font-size: 1rem; }
         main { min-height: 40vh; }
+        .chat-frame {
+          width: 90vw;
+          height: 70vh;
+          right: 5vw;
+        }
+      }
+      .start-chat {
+        padding: 12px 24px;
+        background-color: #7c3aed;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .start-chat:hover {
+        background-color: #6d28d9;
       }
     </style>
   </head>
@@ -52,64 +109,27 @@
   <body>
     <main>
       <h1>Welcome to Your AI Chat Assistant</h1>
-      <p>Tap the chat bubble at the bottom right to start a conversation. Fast, private, and always available.</p>
+      <p>Click the chat button at the bottom right to start a conversation. Fast, private, and always available.</p>
+      <button class="start-chat" onclick="openChatFrame()">Start Chatting</button>
     </main>
 
-    <script src="/script.js"></script>
-    <!-- n8n Chat Widget -->
-    <script src="https://unpkg.com/@n8n/chat@1.0.0/dist/web.js"></script>
+    <button id="chatButton" class="chat-button" onclick="openChatFrame()">
+      <svg class="chat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 3c5.5 0 10 3.58 10 8s-4.5 8-10 8c-1.24 0-2.43-.18-3.53-.5C5.55 21 2 21 2 21c2.33-2.33 2.7-3.9 2.75-4.5C3.05 15.07 2 13.13 2 11c0-4.42 4.5-8 10-8z"/>
+      </svg>
+    </button>
+
+    <iframe id="chatFrame" class="chat-frame" src="https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat" allowfullscreen></iframe>
+
     <script>
-      // Add error handling to help diagnose issues
-      document.addEventListener('DOMContentLoaded', function() {
-        console.log("DOM loaded, attempting to initialize chat...");
-        
-        // Check every 500ms for 10 seconds if n8nChat is available
-        let attempts = 0;
-        const maxAttempts = 20;
-        
-        const initInterval = setInterval(function() {
-          attempts++;
-          
-          if (typeof window.n8nChat !== 'undefined') {
-            console.log("n8nChat is available, initializing...");
-            try {
-              window.n8nChat.mount({
-                webhookUrl: 'https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat',
-                theme: {
-                  position: 'bottom-right',
-                  colorScheme: 'dark',
-                }
-              });
-              console.log("n8n chat initialized successfully!");
-              clearInterval(initInterval);
-            } catch (error) {
-              console.error("Error during initialization:", error);
-            }
-          } else {
-            console.log(`Waiting for n8nChat to load (attempt ${attempts}/${maxAttempts})...`);
-            if (attempts >= maxAttempts) {
-              console.error("Failed to load n8nChat after maximum attempts");
-              clearInterval(initInterval);
-              
-              // Display a fallback button if the widget fails to load
-              const main = document.querySelector('main');
-              const fallbackButton = document.createElement('button');
-              fallbackButton.innerText = 'Start Chat';
-              fallbackButton.style.padding = '10px 20px';
-              fallbackButton.style.backgroundColor = '#7c3aed';
-              fallbackButton.style.color = 'white';
-              fallbackButton.style.border = 'none';
-              fallbackButton.style.borderRadius = '4px';
-              fallbackButton.style.cursor = 'pointer';
-              fallbackButton.style.fontSize = '16px';
-              fallbackButton.onclick = function() {
-                window.open('https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat', '_blank');
-              };
-              main.appendChild(fallbackButton);
-            }
-          }
-        }, 500);
-      });
+      function openChatFrame() {
+        const frame = document.getElementById('chatFrame');
+        if (frame.style.display === 'block') {
+          frame.style.display = 'none';
+        } else {
+          frame.style.display = 'block';
+        }
+      }
     </script>
   </body>
 </html>
