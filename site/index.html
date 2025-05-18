@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.ico" />
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.css" />
     <style>
       :root {
         --primary: #9f7aea;
@@ -36,6 +37,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        background: linear-gradient(135deg, #2c3e50, #bdc3c7);
       }
       
       .container {
@@ -127,6 +129,17 @@
         background-color: #f3f4f6;
         align-self: flex-start;
         border-bottom-left-radius: 4px;
+      }
+      
+      .message.thinking {
+        background-color: #f3f4f6;
+        color: var(--primary);
+        font-weight: 500;
+      }
+      
+      .message.thinking .dot {
+        display: inline-block;
+        transition: opacity 0.3s ease;
       }
       
       .message.user {
@@ -237,107 +250,27 @@
         <p class="personal-message">Made with love, just for you.</p>
       </div>
       
-      <div class="chat-container">
-        <div class="chat-header">
-          <div class="chat-title">Discovery Chat</div>
-        </div>
-        
-        <div id="chat-body" class="chat-body">
-          <div class="message bot">Hello there! 👋 I'm your personal discovery assistant. What are you curious about today?</div>
-        </div>
-        
-        <div class="chat-input">
-          <textarea id="user-input" class="input-field" placeholder="Type your question..." rows="1"></textarea>
-          <button id="send-button" class="send-button">
-            <svg class="send-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
-          </button>
-        </div>
-      </div>
+      <div id="n8n-chat" class="chat-container"></div>
       
       <div class="footer">
         <p>Powered by your love and care ❤️</p>
       </div>
     </div>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const chatBody = document.getElementById('chat-body');
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
-        
-        // Handle textarea auto-resize
-        userInput.addEventListener('input', function() {
-          this.style.height = 'auto';
-          this.style.height = (this.scrollHeight) + 'px';
-          // Reset height if empty
-          if (this.value === '') {
-            this.style.height = 'auto';
-          }
-        });
-        
-        // Handle sending messages
-        function sendMessage() {
-          const message = userInput.value.trim();
-          if (message === '') return;
-          
-          // Add user message to chat
-          appendMessage(message, 'user');
-          
-          // Clear and reset input
-          userInput.value = '';
-          userInput.style.height = 'auto';
-          
-          // Send to n8n webhook
-          fetch('https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              action: 'sendMessage',
-              chatInput: message
-            })
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data && data.response) {
-              appendMessage(data.response, 'bot');
-            } else {
-              appendMessage("I'm sorry, I couldn't process that request. Please try again.", 'bot');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            appendMessage("I'm having trouble connecting right now. Please try again in a moment.", 'bot');
-          });
+    <script type="module">
+      import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/index.js";
+      createChat({
+        target: "#n8n-chat",
+        webhookUrl: "https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat",
+        mode: "chat",
+        welcomeMessage: "Welcome to our labyrinth of discovery! Ask anything.",
+        i18n: { lang: "en" },
+        theme: {
+          primaryColor: "#9f7aea",
+          secondaryColor: "#f687b3",
+          backgroundColor: "#faf5ff",
+          textColor: "#44337a"
         }
-        
-        // Add message to chat
-        function appendMessage(text, type) {
-          const messageDiv = document.createElement('div');
-          messageDiv.classList.add('message', type);
-          messageDiv.textContent = text;
-          chatBody.appendChild(messageDiv);
-          
-          // Scroll to bottom
-          chatBody.scrollTop = chatBody.scrollHeight;
-        }
-        
-        // Event listeners
-        sendButton.addEventListener('click', sendMessage);
-        
-        userInput.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-          }
-        });
-        
-        // Focus input field on load
-        userInput.focus();
       });
     </script>
   </body>
