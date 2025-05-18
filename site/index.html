@@ -2,13 +2,12 @@
 
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Personal Discovery Assistant</title>
     <meta name="description" content="A personal discovery tool just for you" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.ico" />
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.css" />
     <style>
       :root {
         --primary: #9f7aea;
@@ -21,23 +20,14 @@
         --shadow: rgba(159, 122, 234, 0.2);
       }
       
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      
       body {
         font-family: 'Nunito', sans-serif;
-        background-color: var(--background);
+        background: linear-gradient(135deg, #2c3e50, #bdc3c7);
         color: var(--text);
         line-height: 1.6;
         min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background: linear-gradient(135deg, #2c3e50, #bdc3c7);
+        margin: 0;
+        padding: 0;
       }
       
       .container {
@@ -45,16 +35,7 @@
         max-width: 1200px;
         padding: 2rem;
         margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 90vh;
-      }
-      
-      .header {
         text-align: center;
-        margin-bottom: 2rem;
       }
       
       h1 {
@@ -78,122 +59,8 @@
         margin: 1.5rem 0;
         color: var(--secondary);
         max-width: 600px;
-        text-align: center;
-      }
-      
-      .chat-container {
-        width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
-        background-color: var(--white);
-        border-radius: 16px;
-        box-shadow: 0 10px 25px var(--shadow);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        height: 500px;
-      }
-      
-      .chat-header {
-        background-color: var(--primary);
-        color: var(--white);
-        padding: 1rem 1.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      
-      .chat-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-      }
-      
-      .chat-body {
-        flex: 1;
-        overflow-y: auto;
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-      
-      .message {
-        max-width: 80%;
-        padding: 0.8rem 1.2rem;
-        border-radius: 18px;
-        font-size: 1rem;
-        line-height: 1.4;
-      }
-      
-      .message.bot {
-        background-color: #f3f4f6;
-        align-self: flex-start;
-        border-bottom-left-radius: 4px;
-      }
-      
-      .message.thinking {
-        background-color: #f3f4f6;
-        color: var(--primary);
-        font-weight: 500;
-      }
-      
-      .message.thinking .dot {
-        display: inline-block;
-        transition: opacity 0.3s ease;
-      }
-      
-      .message.user {
-        background-color: var(--primary);
-        color: white;
-        align-self: flex-end;
-        border-bottom-right-radius: 4px;
-      }
-      
-      .chat-input {
-        display: flex;
-        padding: 1rem;
-        border-top: 1px solid #e5e7eb;
-        background-color: var(--white);
-      }
-      
-      .input-field {
-        flex: 1;
-        border: 1px solid #d1d5db;
-        border-radius: 24px;
-        padding: 0.5rem 1rem;
-        font-family: 'Nunito', sans-serif;
-        font-size: 1rem;
-        outline: none;
-        resize: none;
-      }
-      
-      .input-field:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 2px var(--shadow);
-      }
-      
-      .send-button {
-        background-color: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        margin-left: 0.5rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-      }
-      
-      .send-button:hover {
-        background-color: var(--primary-dark);
-      }
-      
-      .send-icon {
-        width: 20px;
-        height: 20px;
+        margin-left: auto;
+        margin-right: auto;
       }
       
       .footer {
@@ -201,6 +68,18 @@
         text-align: center;
         font-size: 0.9rem;
         color: var(--light-text);
+      }
+      
+      #n8n-chat-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        height: 500px;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px var(--shadow);
+        background-color: var(--white);
       }
       
       @media (max-width: 768px) {
@@ -212,12 +91,11 @@
           font-size: 1.2rem;
         }
         
-        .chat-container {
+        #n8n-chat-container {
+          width: 90%;
+          right: 5%;
+          left: 5%;
           height: 70vh;
-        }
-        
-        .message {
-          max-width: 90%;
         }
       }
       
@@ -233,45 +111,150 @@
         .personal-message {
           font-size: 1rem;
         }
-        
-        .chat-container {
-          box-shadow: none;
-          border: 1px solid #e5e7eb;
-        }
       }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <div class="header">
-        <h1>Your Discovery Assistant</h1>
-        <p class="subtitle">Ask me anything you're curious about - I'm here to help you explore and learn.</p>
-        <p class="personal-message">Made with love, just for you.</p>
-      </div>
-      
-      <div id="n8n-chat" class="chat-container"></div>
+      <h1>Your Discovery Assistant</h1>
+      <p class="subtitle">Ask me anything you're curious about - I'm here to help you explore and learn.</p>
+      <p class="personal-message">Made with love, just for you.</p>
       
       <div class="footer">
         <p>Powered by your love and care ❤️</p>
       </div>
     </div>
+    
+    <!-- Container where the chat widget will be rendered -->
+    <div id="n8n-chat-container"></div>
 
+    <!-- Import the n8n chat widget script -->
     <script type="module">
-      import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/index.js";
-      createChat({
-        target: "#n8n-chat",
-        webhookUrl: "https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat",
-        mode: "chat",
-        welcomeMessage: "Welcome to our labyrinth of discovery! Ask anything.",
-        i18n: { lang: "en" },
-        theme: {
-          primaryColor: "#9f7aea",
-          secondaryColor: "#f687b3",
-          backgroundColor: "#faf5ff",
-          textColor: "#44337a"
+      // Try to load the chat widget using the ES module
+      try {
+        const module = await import('https://unpkg.com/n8n-chat@0.27.1/dist/index.js');
+        const { createChat } = module;
+        
+        // Initialize the chat widget
+        createChat({
+          container: document.getElementById('n8n-chat-container'),
+          webhookUrl: 'https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat',
+          theme: {
+            primaryColor: '#9f7aea',
+            textColor: '#44337a',
+            fontFamily: 'Nunito, sans-serif',
+          },
+          initialMessages: ['Welcome to our labyrinth of discovery! Ask anything.'],
+        });
+        
+        console.log('Chat widget initialized successfully');
+      } catch (error) {
+        console.error('Failed to load chat widget:', error);
+        
+        // Fallback to custom implementation if module loading fails
+        const chatContainer = document.getElementById('n8n-chat-container');
+        
+        // Create fallback UI
+        chatContainer.innerHTML = `
+          <div style="display: flex; flex-direction: column; height: 100%;">
+            <div style="background-color: #9f7aea; color: white; padding: 10px; text-align: center;">
+              <h3 style="margin: 0;">Discovery Chat</h3>
+            </div>
+            <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 15px;"></div>
+            <div style="border-top: 1px solid #eee; padding: 10px; display: flex;">
+              <input id="chat-input" type="text" placeholder="Type your question..." 
+                    style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+              <button id="chat-send" style="margin-left: 10px; background: #9f7aea; color: white; border: none; 
+                      padding: 8px 15px; border-radius: 4px; cursor: pointer;">Send</button>
+            </div>
+          </div>
+        `;
+        
+        const messagesDiv = document.getElementById('chat-messages');
+        const inputEl = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('chat-send');
+        
+        // Add welcome message
+        messagesDiv.innerHTML = `
+          <div style="background: #f0f0f0; padding: 10px; border-radius: 10px; margin-bottom: 10px; max-width: 80%;">
+            Welcome to our labyrinth of discovery! Ask anything.
+          </div>
+        `;
+        
+        // Handle sending messages
+        function sendMessage() {
+          const message = inputEl.value.trim();
+          if (!message) return;
+          
+          // Add user message
+          messagesDiv.innerHTML += `
+            <div style="background: #9f7aea; color: white; padding: 10px; border-radius: 10px; 
+                        margin-bottom: 10px; max-width: 80%; margin-left: auto;">
+              ${message}
+            </div>
+          `;
+          
+          // Clear input
+          inputEl.value = '';
+          
+          // Add loading indicator
+          const loadingId = 'loading-' + Date.now();
+          messagesDiv.innerHTML += `
+            <div id="${loadingId}" style="background: #f0f0f0; padding: 10px; border-radius: 10px; 
+                                      margin-bottom: 10px; max-width: 80%;">
+              Thinking...
+            </div>
+          `;
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+          
+          // Send to webhook
+          fetch('https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'sendMessage', chatInput: message })
+          })
+          .then(response => response.json())
+          .then(data => {
+            // Remove loading indicator
+            document.getElementById(loadingId).remove();
+            
+            // Add response message
+            const responseText = data.response || data.text || data.message || data.content || 
+                                "I'm having trouble formatting my response right now.";
+            
+            messagesDiv.innerHTML += `
+              <div style="background: #f0f0f0; padding: 10px; border-radius: 10px; 
+                          margin-bottom: 10px; max-width: 80%;">
+                ${responseText}
+              </div>
+            `;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+          })
+          .catch(error => {
+            // Remove loading indicator
+            document.getElementById(loadingId).remove();
+            
+            // Add error message
+            messagesDiv.innerHTML += `
+              <div style="background: #f0f0f0; padding: 10px; border-radius: 10px; 
+                          margin-bottom: 10px; max-width: 80%;">
+                I'm having trouble connecting right now. Please try again in a moment.
+              </div>
+            `;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+          });
         }
-      });
+        
+        // Event listeners
+        sendBtn.addEventListener('click', sendMessage);
+        inputEl.addEventListener('keydown', e => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+          }
+        });
+      }
     </script>
   </body>
 </html>
