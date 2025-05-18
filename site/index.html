@@ -1,4 +1,15 @@
 <!DOCTYPE html>
+<!-- 
+  Personal Discovery Chat Hub
+  Created with love for my wife
+  
+  This is a simple, elegant chat interface that connects to an n8n webhook.
+  It provides a labyrinth of discovery through conversation, allowing my wife
+  to explore topics she's curious about in a beautiful, intuitive interface.
+  
+  The chat uses a custom implementation with fallback capabilities to ensure
+  it works across different browsers and environments.
+-->
 
 <html lang="en">
   <head>
@@ -132,6 +143,8 @@
     <!-- Import the n8n chat widget script -->
     <script type="module">
       // Try to load the chat widget using the ES module
+      // First we attempt to load the official n8n chat widget
+      // If that fails due to CORS or MIME issues, we fall back to our custom implementation
       try {
         const module = await import('https://unpkg.com/n8n-chat@0.27.1/dist/index.js');
         const { createChat } = module;
@@ -152,6 +165,9 @@
       } catch (error) {
         console.error('Failed to load chat widget:', error);
         
+        // FALLBACK IMPLEMENTATION
+        // This custom chat interface activates when the official widget can't be loaded
+        // It provides the same core functionality with a similar look and feel
         // Fallback to custom implementation if module loading fails
         const chatContainer = document.getElementById('n8n-chat-container');
         
@@ -178,10 +194,12 @@
         // Add welcome message
         messagesDiv.innerHTML = `
           <div style="background: #f0f0f0; padding: 10px; border-radius: 10px; margin-bottom: 10px; max-width: 80%;">
-            Welcome to our labyrinth of discovery! Ask anything.
+            Hi love, Ask anything here and a neat answer will be given. (this chat is not conversational, it only responds to one message at a time)
           </div>
         `;
         
+        // This function handles sending user messages to the n8n webhook
+        // and displaying the response in the chat interface
         // Handle sending messages
         function sendMessage() {
           const message = inputEl.value.trim();
@@ -198,16 +216,18 @@
           // Clear input
           inputEl.value = '';
           
+          // Show a "thinking" indicator while waiting for the response
           // Add loading indicator
           const loadingId = 'loading-' + Date.now();
           messagesDiv.innerHTML += `
             <div id="${loadingId}" style="background: #f0f0f0; padding: 10px; border-radius: 10px; 
                                       margin-bottom: 10px; max-width: 80%;">
-              Thinking...
+              Thinking (of you)...
             </div>
           `;
           messagesDiv.scrollTop = messagesDiv.scrollHeight;
           
+          // Send the message to the n8n webhook endpoint
           // Send to webhook
           fetch('https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat', {
             method: 'POST',
@@ -219,9 +239,11 @@
             // Remove loading indicator
             document.getElementById(loadingId).remove();
             
+            // Handle various response formats from different n8n workflows
+            // This ensures compatibility with different webhook configurations
             // Add response message
             console.log('Response data:', data);
-            let responseText = "I'm having trouble formatting my response right now.";
+            let responseText = "I'm having trouble formatting my response right now, sorry hoss.";
             
             // Handle different response formats
             if (data && typeof data === 'object') {
@@ -246,6 +268,7 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
           })
           .catch(error => {
+            // Error handling for failed requests
             // Remove loading indicator
             document.getElementById(loadingId).remove();
             
@@ -260,6 +283,7 @@
           });
         }
         
+        // Set up event listeners for the chat interface
         // Event listeners
         sendBtn.addEventListener('click', sendMessage);
         inputEl.addEventListener('keydown', e => {
