@@ -33,5 +33,15 @@
     </main>
 
     <script src="/script.js"></script>
+    <!-- n8n Chat Widget -->
+    <script type="module">
+      import Chat from 'https://cdn.jsdelivr.net/npm/@n8n/chat@latest/dist/web.js'
+      Chat.mount({
+        webhookUrl: 'https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat',
+        theme: {
+          position: 'bottom-right', // floating, mobile-friendly
+        }
+      })
+    </script>
   </body>
 </html>
