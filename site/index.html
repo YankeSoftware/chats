@@ -14,34 +14,21 @@
 
   <body>
     <main>
-      <img
-        src="https://railway.app/brand/logo-light.svg"
-        alt="Railway logo"
-        class="logo"
-      />
-
-      <h1>NGINX on Railway</h1>
-
-      <p>
-        Choo Choo! This is an example of an NGINX static site running on
-        Railway.
-        <a
-          href="https://github.com/railwayapp/starters/tree/master/examples/nginx"
-          >View source</a
-        >.
-      </p>
+      <h1>Chat Assistant</h1>
+      <p>How can I help you today?</p>
     </main>
 
     <script src="/script.js"></script>
     <!-- n8n Chat Widget -->
-    <script type="module">
-      import Chat from 'https://cdn.jsdelivr.net/npm/@n8n/chat@latest/dist/web.js'
-      Chat.mount({
+    <script src="https://cdn.jsdelivr.net/npm/@n8n/chat@latest/dist/web.js"></script>
+    <script>
+      window.n8nChat.mount({
         webhookUrl: 'https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat',
         theme: {
           position: 'bottom-right', // floating, mobile-friendly
+          colorScheme: 'dark',
         }
-      })
+      });
     </script>
   </body>
 </html>
