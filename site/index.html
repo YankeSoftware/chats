@@ -57,14 +57,58 @@
 
     <script src="/script.js"></script>
     <!-- n8n Chat Widget -->
-    <script src="https://cdn.jsdelivr.net/npm/@n8n/chat@latest/dist/web.js"></script>
+    <script src="https://unpkg.com/@n8n/chat@1.0.0/dist/web.js"></script>
     <script>
-      window.n8nChat.mount({
-        webhookUrl: 'https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat',
-        theme: {
-          position: 'bottom-right', // floating, mobile-friendly
-          colorScheme: 'dark',
-        }
+      // Add error handling to help diagnose issues
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM loaded, attempting to initialize chat...");
+        
+        // Check every 500ms for 10 seconds if n8nChat is available
+        let attempts = 0;
+        const maxAttempts = 20;
+        
+        const initInterval = setInterval(function() {
+          attempts++;
+          
+          if (typeof window.n8nChat !== 'undefined') {
+            console.log("n8nChat is available, initializing...");
+            try {
+              window.n8nChat.mount({
+                webhookUrl: 'https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat',
+                theme: {
+                  position: 'bottom-right',
+                  colorScheme: 'dark',
+                }
+              });
+              console.log("n8n chat initialized successfully!");
+              clearInterval(initInterval);
+            } catch (error) {
+              console.error("Error during initialization:", error);
+            }
+          } else {
+            console.log(`Waiting for n8nChat to load (attempt ${attempts}/${maxAttempts})...`);
+            if (attempts >= maxAttempts) {
+              console.error("Failed to load n8nChat after maximum attempts");
+              clearInterval(initInterval);
+              
+              // Display a fallback button if the widget fails to load
+              const main = document.querySelector('main');
+              const fallbackButton = document.createElement('button');
+              fallbackButton.innerText = 'Start Chat';
+              fallbackButton.style.padding = '10px 20px';
+              fallbackButton.style.backgroundColor = '#7c3aed';
+              fallbackButton.style.color = 'white';
+              fallbackButton.style.border = 'none';
+              fallbackButton.style.borderRadius = '4px';
+              fallbackButton.style.cursor = 'pointer';
+              fallbackButton.style.fontSize = '16px';
+              fallbackButton.onclick = function() {
+                window.open('https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat', '_blank');
+              };
+              main.appendChild(fallbackButton);
+            }
+          }
+        }, 500);
       });
     </script>
   </body>
