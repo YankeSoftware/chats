@@ -51,10 +51,22 @@
     <div id="calendar-controls" class="calendar-controls hidden">
       <h3 class="calendar-controls__title">Calendar Management</h3>
       <div class="calendar-controls__buttons">
-        <button id="switch-to-justin" class="calendar-controls__button">Justin's Calendar</button>
-        <button id="switch-to-wife" class="calendar-controls__button calendar-controls__button--wife">Wife's Calendar</button>
+        <a href="https://calendar.google.com/calendar/u/0/r" target="_blank" class="calendar-controls__button calendar-controls__button--cal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="calendar-controls__icon" viewBox="0 0 16 16">
+            <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z"/>
+            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+          </svg>
+          Open Calendar
+        </a>
+        <a href="https://calendar.google.com/calendar/iphoneselect" target="_blank" class="calendar-controls__button calendar-controls__button--mobile">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="calendar-controls__icon" viewBox="0 0 16 16">
+            <path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/>
+            <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+          </svg>
+          Mobile Calendar
+        </a>
       </div>
-      <div id="calendar-status" class="calendar-status">Currently managing: Justin's calendar</div>
+      <div id="calendar-status" class="calendar-status">Managing your calendar</div>
     </div>
     
     <div id="calendar-chat" class="calendar-chat hidden"></div>
@@ -293,33 +305,12 @@
               sendCalendarMessage();
             }
           });
-          
-          // Calendar switcher functionality
-          document.getElementById('switch-to-justin').addEventListener('click', function() {
-            switchCalendar('justin');
-          });
-          
-          document.getElementById('switch-to-wife').addEventListener('click', function() {
-            switchCalendar('wife');
-          });
-          
-          function switchCalendar(user) {
-            // Update visual status
-            calendarStatus.textContent = `Currently managing: ${user === 'wife' ? 'Wife' : 'Justin'}'s calendar`;
-            
-            // Send message to switch calendar
-            inputEl.value = `use ${user}'s calendar`;
-            sendCalendarMessage();
-          }
         }
         
         // Update calendar status based on response
         function updateCalendarStatus(data) {
-          if (data.activeUser) {
-            const user = data.activeUser;
-            calendarStatus.textContent = `Currently managing: ${user === 'wife' ? 'Wife' : 'Justin'}'s calendar`;
-          } else if (data.calendarName) {
-            calendarStatus.textContent = `Currently managing: ${data.calendarName}'s calendar`;
+          if (data && data.calendarEvent) {
+            calendarStatus.textContent = `Calendar updated: ${new Date().toLocaleTimeString()}`;
           }
         }
         
