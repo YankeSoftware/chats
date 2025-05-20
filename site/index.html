@@ -19,114 +19,21 @@
     <meta name="description" content="A personal discovery tool just for you" />
     <link rel="icon" href="/favicon.ico" />
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-      :root {
-        --primary: #9f7aea;
-        --primary-dark: #805ad5;
-        --secondary: #f687b3;
-        --background: #faf5ff;
-        --text: #44337a;
-        --light-text: #6b46c1;
-        --white: #ffffff;
-        --shadow: rgba(159, 122, 234, 0.2);
-      }
-      
-      body {
-        font-family: 'Nunito', sans-serif;
-        background: linear-gradient(135deg, #2c3e50, #bdc3c7);
-        color: var(--text);
-        line-height: 1.6;
-        min-height: 100vh;
-        margin: 0;
-        padding: 0;
-      }
-      
-      .container {
-        width: 100%;
-        max-width: 1200px;
-        padding: 2rem;
-        margin: 0 auto;
-        text-align: center;
-      }
-      
-      h1 {
-        font-size: 3rem;
-        font-weight: 700;
-        color: var(--primary-dark);
-        margin-bottom: 1rem;
-        line-height: 1.2;
-      }
-      
-      .subtitle {
-        font-size: 1.5rem;
-        color: var(--light-text);
-        max-width: 600px;
-        margin: 0 auto;
-      }
-      
-      .personal-message {
-        font-size: 1.2rem;
-        font-style: italic;
-        margin: 1.5rem 0;
-        color: var(--secondary);
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-      
-      .footer {
-        margin-top: 2.5rem;
-        text-align: center;
-        font-size: 0.9rem;
-        color: var(--light-text);
-      }
-      
-      #n8n-chat-container {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 350px;
-        height: 500px;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 10px 25px var(--shadow);
-        background-color: var(--white);
-      }
-      
-      @media (max-width: 768px) {
-        h1 {
-          font-size: 2.2rem;
-        }
-        
-        .subtitle {
-          font-size: 1.2rem;
-        }
-        
-        #n8n-chat-container {
-          width: 90%;
-          right: 5%;
-          left: 5%;
-          height: 70vh;
-        }
-      }
-      
-      @media (max-width: 480px) {
-        h1 {
-          font-size: 1.8rem;
-        }
-        
-        .subtitle {
-          font-size: 1rem;
-        }
-        
-        .personal-message {
-          font-size: 1rem;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css" />
   </head>
 
   <body>
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="login-overlay">
+      <div class="login-container">
+        <h2>Welcome</h2>
+        <p>Please enter your password to access the Life Driver chat.</p>
+        <input type="password" id="password-input" class="login-input" placeholder="Password" />
+        <button id="login-button" class="login-button">Enter</button>
+        <p id="login-error" class="login-error">Incorrect password. Please try again.</p>
+      </div>
+    </div>
+    
     <div class="container">
       <h1>Life driver</h1>
       <p class="subtitle">Ask me anything you're curious about - I'm here to help you explore and learn.</p>
@@ -137,162 +44,353 @@
       </div>
     </div>
     
-    <!-- Container where the chat widget will be rendered -->
-    <div id="n8n-chat-container"></div>
+    <!-- Chat UI Components -->
+    <div id="chat-container" class="chat-container"></div>
+    
+    <!-- Calendar Components (Only visible to Justin) -->
+    <div id="calendar-controls" class="calendar-controls hidden">
+      <h3 class="calendar-controls__title">Calendar Management</h3>
+      <div class="calendar-controls__buttons">
+        <button id="switch-to-justin" class="calendar-controls__button">Justin's Calendar</button>
+        <button id="switch-to-wife" class="calendar-controls__button calendar-controls__button--wife">Wife's Calendar</button>
+      </div>
+      <div id="calendar-status" class="calendar-status">Currently managing: Justin's calendar</div>
+    </div>
+    
+    <div id="calendar-chat" class="calendar-chat hidden"></div>
 
-    <!-- Import the n8n chat widget script -->
-    <script type="module">
-      // Try to load the chat widget using the ES module
-      // First we attempt to load the official n8n chat widget
-      // If that fails due to CORS or MIME issues, we fall back to our custom implementation
-      try {
-        const module = await import('https://unpkg.com/n8n-chat@0.27.1/dist/index.js');
-        const { createChat } = module;
+    <!-- Custom Chat Implementation -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // UI Elements
+        const chatContainer = document.getElementById('chat-container');
+        const calendarChat = document.getElementById('calendar-chat');
+        const calendarControls = document.getElementById('calendar-controls');
+        const calendarStatus = document.getElementById('calendar-status');
         
-        // Initialize the chat widget
-        createChat({
-          container: document.getElementById('n8n-chat-container'),
-          webhookUrl: 'https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat',
-          theme: {
-            primaryColor: '#9f7aea',
-            textColor: '#44337a',
-            fontFamily: 'Nunito, sans-serif',
-          },
-          initialMessages: ['Welcome to our labyrinth of discovery! Ask anything.'],
-        });
+        // Setup Discovery Chat
+        setupDiscoveryChat();
         
-        console.log('Chat widget initialized successfully');
-      } catch (error) {
-        console.error('Failed to load chat widget:', error);
+        // Setup Calendar Chat (Only for Justin)
+        setupCalendarChat();
         
-        // FALLBACK IMPLEMENTATION
-        // This custom chat interface activates when the official widget can't be loaded
-        // It provides the same core functionality with a similar look and feel
-        // Fallback to custom implementation if module loading fails
-        const chatContainer = document.getElementById('n8n-chat-container');
-        
-        // Create fallback UI
-        chatContainer.innerHTML = `
-          <div style="display: flex; flex-direction: column; height: 100%;">
-            <div style="background-color: #9f7aea; color: white; padding: 10px; text-align: center;">
-              <h3 style="margin: 0;">Discovery Chat</h3>
+        function setupDiscoveryChat() {
+          // Create regular chat UI
+          chatContainer.innerHTML = `
+            <div class="chat-header">
+              <h3>Discovery Chat</h3>
             </div>
-            <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 15px;"></div>
-            <div style="border-top: 1px solid #eee; padding: 10px; display: flex;">
-              <input id="chat-input" type="text" placeholder="Type your question..." 
-                    style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-              <button id="chat-send" style="margin-left: 10px; background: #9f7aea; color: white; border: none; 
-                      padding: 8px 15px; border-radius: 4px; cursor: pointer;">Send</button>
-            </div>
-          </div>
-        `;
-        
-        const messagesDiv = document.getElementById('chat-messages');
-        const inputEl = document.getElementById('chat-input');
-        const sendBtn = document.getElementById('chat-send');
-        
-        // Add welcome message
-        messagesDiv.innerHTML = `
-          <div style="background: #f0f0f0; padding: 10px; border-radius: 10px; margin-bottom: 10px; max-width: 80%;">
-            Hi love, Ask anything here and a neat answer will be given. (this chat is not conversational, it only responds to one message at a time)
-          </div>
-        `;
-        
-        // This function handles sending user messages to the n8n webhook
-        // and displaying the response in the chat interface
-        // Handle sending messages
-        function sendMessage() {
-          const message = inputEl.value.trim();
-          if (!message) return;
-          
-          // Add user message
-          messagesDiv.innerHTML += `
-            <div style="background: #9f7aea; color: white; padding: 10px; border-radius: 10px; 
-                        margin-bottom: 10px; max-width: 80%; margin-left: auto;">
-              ${message}
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input-container">
+              <input id="chat-input" class="chat-input" type="text" placeholder="Type your question...">
+              <button id="chat-send" class="chat-send-button">Send</button>
             </div>
           `;
           
-          // Clear input
-          inputEl.value = '';
+          const messagesDiv = document.getElementById('chat-messages');
+          const inputEl = document.getElementById('chat-input');
+          const sendBtn = document.getElementById('chat-send');
           
-          // Show a "thinking" indicator while waiting for the response
-          // Add loading indicator
-          const loadingId = 'loading-' + Date.now();
-          messagesDiv.innerHTML += `
-            <div id="${loadingId}" style="background: #f0f0f0; padding: 10px; border-radius: 10px; 
-                                      margin-bottom: 10px; max-width: 80%;">
-              Thinking (of you)...
+          // Add welcome message
+          messagesDiv.innerHTML = `
+            <div class="chat-message chat-message--assistant">
+              Welcome! Ask me anything you're curious about. I'm here to help you explore and learn.
             </div>
           `;
-          messagesDiv.scrollTop = messagesDiv.scrollHeight;
           
-          // Send the message to the n8n webhook endpoint
-          // Send to webhook
-          fetch('https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'sendMessage', chatInput: message })
-          })
-          .then(response => response.json())
-          .then(data => {
-            // Remove loading indicator
-            document.getElementById(loadingId).remove();
+          // Handle sending messages for discovery chat
+          function sendDiscoveryMessage() {
+            const message = inputEl.value.trim();
+            if (!message) return;
             
-            // Handle various response formats from different n8n workflows
-            // This ensures compatibility with different webhook configurations
-            // Add response message
-            console.log('Response data:', data);
-            let responseText = "I'm having trouble formatting my response right now, sorry hoss.";
+            // Add user message
+            messagesDiv.innerHTML += `
+              <div class="chat-message chat-message--user">${message}</div>
+            `;
             
-            // Handle different response formats
-            if (data && typeof data === 'object') {
-              if (data.response) responseText = data.response;
-              else if (data.text) responseText = data.text;
-              else if (data.message) responseText = data.message;
-              else if (data.content) responseText = data.content;
-              else if (data.answer) responseText = data.answer;
-              else if (data.result && data.result.text) responseText = data.result.text;
-              else if (data.data && data.data.text) responseText = data.data.text;
-              else if (data.output) responseText = data.output;
-            } else if (typeof data === 'string') {
-              responseText = data;
+            // Clear input
+            inputEl.value = '';
+            
+            // Add loading indicator
+            const loadingId = 'loading-' + Date.now();
+            messagesDiv.innerHTML += `
+              <div id="${loadingId}" class="chat-message chat-message--loading">
+                Thinking of the answer...
+              </div>
+            `;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Send to webhook - GENERAL DISCOVERY CHAT WEBHOOK
+            fetch('https://primary-production-5417.up.railway.app/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'sendMessage', chatInput: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+              // Remove loading indicator
+              document.getElementById(loadingId).remove();
+              
+              // Parse response
+              console.log('Response data:', data);
+              let responseText = "I'm having trouble formatting my response right now.";
+              
+              // Handle different response formats
+              if (data && typeof data === 'object') {
+                if (data.response) responseText = data.response;
+                else if (data.text) responseText = data.text;
+                else if (data.message) responseText = data.message;
+                else if (data.content) responseText = data.content;
+                else if (data.answer) responseText = data.answer;
+                else if (data.result && data.result.text) responseText = data.result.text;
+                else if (data.data && data.data.text) responseText = data.data.text;
+                else if (data.output) responseText = data.output;
+              } else if (typeof data === 'string') {
+                responseText = data;
+              }
+              
+              // Display response
+              messagesDiv.innerHTML += `
+                <div class="chat-message chat-message--assistant">${responseText}</div>
+              `;
+              messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            })
+            .catch(error => {
+              // Handle errors
+              document.getElementById(loadingId).remove();
+              
+              messagesDiv.innerHTML += `
+                <div class="chat-message chat-message--assistant">
+                  I'm having trouble connecting right now. Please try again in a moment.
+                </div>
+              `;
+              messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+          }
+          
+          // Event listeners for discovery chat
+          sendBtn.addEventListener('click', sendDiscoveryMessage);
+          inputEl.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              sendDiscoveryMessage();
             }
-            
-            messagesDiv.innerHTML += `
-              <div style="background: #f0f0f0; padding: 10px; border-radius: 10px; 
-                          margin-bottom: 10px; max-width: 80%;">
-                ${responseText}
-              </div>
-            `;
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-          })
-          .catch(error => {
-            // Error handling for failed requests
-            // Remove loading indicator
-            document.getElementById(loadingId).remove();
-            
-            // Add error message
-            messagesDiv.innerHTML += `
-              <div style="background: #f0f0f0; padding: 10px; border-radius: 10px; 
-                          margin-bottom: 10px; max-width: 80%;">
-                I'm having trouble connecting right now. Please try again in a moment.
-              </div>
-            `;
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
           });
         }
         
-        // Set up event listeners for the chat interface
-        // Event listeners
-        sendBtn.addEventListener('click', sendMessage);
-        inputEl.addEventListener('keydown', e => {
+        function setupCalendarChat() {
+          // Create calendar chat UI
+          calendarChat.innerHTML = `
+            <div class="chat-header">
+              <h3>Calendar Assistant</h3>
+            </div>
+            <div id="calendar-messages" class="chat-messages"></div>
+            <div class="chat-input-container">
+              <input id="calendar-input" class="chat-input" type="text" placeholder="Manage your calendar...">
+              <button id="calendar-send" class="chat-send-button">Send</button>
+            </div>
+          `;
+          
+          const messagesDiv = document.getElementById('calendar-messages');
+          const inputEl = document.getElementById('calendar-input');
+          const sendBtn = document.getElementById('calendar-send');
+          
+          // Add welcome message
+          messagesDiv.innerHTML = `
+            <div class="chat-message chat-message--assistant">
+              Hi Justin! I'm your Calendar Assistant. You can ask me to add events, check your schedule, or update existing appointments.
+            </div>
+          `;
+          
+          // Handle sending messages for calendar chat
+          function sendCalendarMessage() {
+            const message = inputEl.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            messagesDiv.innerHTML += `
+              <div class="chat-message chat-message--user">${message}</div>
+            `;
+            
+            // Clear input
+            inputEl.value = '';
+            
+            // Add loading indicator
+            const loadingId = 'cal-loading-' + Date.now();
+            messagesDiv.innerHTML += `
+              <div id="${loadingId}" class="chat-message chat-message--loading">
+                Checking your calendar...
+              </div>
+            `;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Send to webhook - CALENDAR CHAT WEBHOOK FROM SCREENSHOT
+            fetch('https://primary-production-5417.up.railway.app/webhook/7b02318f-1c6b-4f2a-9a4f-b17fa69ea680/chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                // Try different payload formats to resolve the 500 error
+                // Option 1: Simple text payload
+                chatInput: message,
+                
+                // Option 2: Add session ID for conversation tracking
+                sessionId: 'calendar-session-' + Date.now(),
+                
+                // Option 3: Add message type information
+                type: 'userMessage'
+              })
+            })
+            .then(response => response.json())
+            .then(data => {
+              // Remove loading indicator
+              document.getElementById(loadingId).remove();
+              
+              // Parse response
+              console.log('Calendar response:', data);
+              let responseText = "I'm having trouble with your calendar right now.";
+              
+              // Handle different response formats
+              if (data && typeof data === 'object') {
+                if (data.response) responseText = data.response;
+                else if (data.text) responseText = data.text;
+                else if (data.message) responseText = data.message;
+                else if (data.content) responseText = data.content;
+                else if (data.answer) responseText = data.answer;
+                else if (data.result && data.result.text) responseText = data.result.text;
+                else if (data.data && data.data.text) responseText = data.data.text;
+                else if (data.output) responseText = data.output;
+                
+                // Update calendar status if calendar info is included
+                updateCalendarStatus(data);
+              } else if (typeof data === 'string') {
+                responseText = data;
+              }
+              
+              // Display response
+              messagesDiv.innerHTML += `
+                <div class="chat-message chat-message--assistant">${responseText}</div>
+              `;
+              messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            })
+            .catch(error => {
+              // Handle errors
+              document.getElementById(loadingId).remove();
+              
+              messagesDiv.innerHTML += `
+                <div class="chat-message chat-message--assistant">
+                  I'm having trouble connecting to your calendar right now. Please try again in a moment.
+                </div>
+              `;
+              messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+          }
+          
+          // Event listeners for calendar chat
+          sendBtn.addEventListener('click', sendCalendarMessage);
+          inputEl.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              sendCalendarMessage();
+            }
+          });
+          
+          // Calendar switcher functionality
+          document.getElementById('switch-to-justin').addEventListener('click', function() {
+            switchCalendar('justin');
+          });
+          
+          document.getElementById('switch-to-wife').addEventListener('click', function() {
+            switchCalendar('wife');
+          });
+          
+          function switchCalendar(user) {
+            // Update visual status
+            calendarStatus.textContent = `Currently managing: ${user === 'wife' ? 'Wife' : 'Justin'}'s calendar`;
+            
+            // Send message to switch calendar
+            inputEl.value = `use ${user}'s calendar`;
+            sendCalendarMessage();
+          }
+        }
+        
+        // Update calendar status based on response
+        function updateCalendarStatus(data) {
+          if (data.activeUser) {
+            const user = data.activeUser;
+            calendarStatus.textContent = `Currently managing: ${user === 'wife' ? 'Wife' : 'Justin'}'s calendar`;
+          } else if (data.calendarName) {
+            calendarStatus.textContent = `Currently managing: ${data.calendarName}'s calendar`;
+          }
+        }
+        
+        // Login Functionality
+        const loginOverlay = document.getElementById('login-overlay');
+        const container = document.querySelector('.container');
+        const passwordInput = document.getElementById('password-input');
+        const loginButton = document.getElementById('login-button');
+        const loginError = document.getElementById('login-error');
+        
+        // Set password
+        const correctPassword = 'loveyou';
+        
+        // Check if already logged in 
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        
+        if (isLoggedIn) {
+          loginOverlay.classList.add('hidden');
+          // Show calendar chat and controls for Justin
+          calendarChat.classList.remove('hidden');
+          calendarControls.classList.remove('hidden');
+        } else {
+          // Hide content until logged in
+          container.style.opacity = '0';
+          chatContainer.style.opacity = '0';
+          calendarChat.classList.add('hidden');
+          calendarControls.classList.add('hidden');
+        }
+        
+        // Handle login
+        function handleLogin() {
+          const password = passwordInput.value;
+          
+          if (password === correctPassword) {
+            // Set login state
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            // Hide login overlay with fade effect
+            loginOverlay.style.opacity = '0';
+            setTimeout(() => {
+              loginOverlay.classList.add('hidden');
+              container.style.opacity = '1';
+              chatContainer.style.opacity = '1';
+              // Show calendar chat and controls for Justin
+              calendarChat.classList.remove('hidden');
+              calendarControls.classList.remove('hidden');
+            }, 300);
+          } else {
+            // Show error
+            loginError.style.display = 'block';
+            passwordInput.value = '';
+            passwordInput.focus();
+          }
+        }
+        
+        // Login button click
+        loginButton.addEventListener('click', handleLogin);
+        
+        // Login on Enter key
+        passwordInput.addEventListener('keydown', function(e) {
           if (e.key === 'Enter') {
-            e.preventDefault();
-            sendMessage();
+            handleLogin();
           }
         });
-      }
+        
+        // Logout function
+        window.logout = function() {
+          localStorage.removeItem('isLoggedIn');
+          location.reload();
+        };
+      });
     </script>
   </body>
 </html>

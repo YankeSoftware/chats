@@ -1,40 +1,341 @@
-body {
-  margin: 0;
-  padding: 2rem;
-  background-color: hsl(250, 24%, 9%);
-  color: hsl(0, 0%, 100%);
-  font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui,
-    helvetica neue, helvetica, Ubuntu, roboto, noto, arial, sans-serif;
+/*
+  styles.css
+  Main stylesheet for Life Driver Chat
+  Organized with BEM-style and utility classes. All color, spacing, and font rules are at the top.
+*/
+
+:root {
+  --primary: #9f7aea;
+  --primary-dark: #805ad5;
+  --secondary: #f687b3;
+  --background: #ffffff;
+  --text: #44337a;
+  --light-text: #6b46c1;
+  --white: #ffffff;
+  --shadow: rgba(159, 122, 234, 0.2);
+  --danger: #e53e3e;
+  --gray-light: #f0f0f0;
+  --gray-border: #eee;
 }
 
-main {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+/* Base elements */
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--background);
+  color: var(--text);
+  line-height: 1.6;
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  padding: 2rem;
+  margin: 0 auto;
+  text-align: center;
 }
 
 h1 {
-  font-size: 48px;
-  margin: 1rem 0;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 1rem;
+  line-height: 1.2;
 }
 
-.logo {
-  width: 8rem;
-  height: 8rem;
-  margin-bottom: 2rem;
+.subtitle {
+  font-size: 1.5rem;
+  color: var(--light-text);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-p {
-  line-height: 1.6;
+.personal-message {
+  font-size: 1.2rem;
+  font-style: italic;
+  margin: 1.5rem 0;
+  color: var(--secondary);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-a {
-  color: hsl(270, 70%, 65%);
-  text-decoration: none;
+.footer {
+  margin-top: 2.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--light-text);
 }
 
-a:hover {
-  text-decoration: underline;
+/* Utility classes */
+.hidden {
+  display: none !important;
+}
+
+/* Login Component */
+.login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.login-container {
+  background-color: var(--white);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px var(--shadow);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  border: 1px solid var(--gray-border);
+}
+
+.login-container h2 {
+  color: var(--primary-dark);
+  margin-bottom: 1.5rem;
+}
+
+.login-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-family: 'Nunito', sans-serif;
+}
+
+.login-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--shadow);
+}
+
+.login-button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.login-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.login-error {
+  color: var(--danger);
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  display: none;
+}
+
+/* Chat UI */
+.chat-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 350px;
+  height: 500px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px var(--shadow);
+  background-color: var(--white);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.chat-header {
+  background-color: var(--primary);
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+.chat-header h3 {
+  margin: 0;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  background: var(--background);
+}
+
+.chat-message {
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  max-width: 80%;
+  word-break: break-word;
+}
+
+.chat-message--user {
+  background: var(--primary);
+  color: white;
+  margin-left: auto;
+}
+
+.chat-message--assistant {
+  background: var(--gray-light);
+  color: var(--text);
+}
+
+.chat-message--loading {
+  background: var(--gray-light);
+  color: var(--text);
+}
+
+.chat-input-container {
+  border-top: 1px solid var(--gray-border);
+  padding: 10px;
+  display: flex;
+  background: white;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: 'Nunito', sans-serif;
+}
+
+.chat-send-button {
+  margin-left: 10px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Calendar UI */
+.calendar-status {
+  position: relative;
+  background: var(--primary);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-top: 10px;
+  box-shadow: 0 2px 8px rgba(159,122,234,0.15);
+}
+
+.calendar-controls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: white;
+  color: var(--text);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 16px;
+  z-index: 110;
+  box-shadow: 0 2px 8px rgba(159,122,234,0.15);
+  width: 300px;
+}
+
+.calendar-controls__title {
+  margin: 0 0 12px 0;
+  color: var(--primary-dark);
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.calendar-controls__buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.calendar-controls__button {
+  margin: 0 8px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+}
+
+.calendar-controls__button--wife {
+  background: var(--secondary);
+}
+
+.calendar-chat {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 350px;
+  height: 500px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px var(--shadow);
+  background-color: var(--white);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2.2rem;
+  }
+  
+  .subtitle {
+    font-size: 1.2rem;
+  }
+  
+  .chat-container {
+    width: 90%;
+    right: 5%;
+    left: 5%;
+    height: 70vh;
+  }
+  
+  .calendar-controls {
+    width: 90%;
+    right: 5%;
+    top: 70px;
+  }
+  
+  .calendar-chat {
+    width: 90%;
+    left: 5%;
+    height: 70vh;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.8rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  .personal-message {
+    font-size: 1rem;
+  }
 }
